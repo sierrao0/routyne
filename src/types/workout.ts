@@ -5,7 +5,9 @@ export interface ParsedExercise {
   sets: number;
   repsMin: number;
   repsMax: number;
+  restSeconds: number; // Added for the timer system
   mediaUrl: string | null;
+  notes?: string;
 }
 
 export interface WorkoutSession {
@@ -21,10 +23,42 @@ export interface RoutineData {
   createdAt: Date;
 }
 
+export interface SetStatus {
+  completed: boolean;
+  repsDone?: number;
+  weight?: number;
+  timestamp?: Date;
+}
+
+export type WorkoutView = 'uploader' | 'routine-overview' | 'active-session' | 'history' | 'stats';
+
+export interface HistoryEntry {
+  id: string;
+  sessionIdx: number;
+  sessionTitle: string;
+  completedAt: Date;
+  completedExercises: string[]; // List of exercise IDs
+}
+
 // Store state interface
 export interface WorkoutState {
   currentRoutine: RoutineData | null;
-  setCurrentRoutine: (routine: RoutineData) => void;
+  currentView: WorkoutView;
+  activeSessionIdx: number | null;
   isLoading: boolean;
+  
+  // Progress tracking: key is "sessionIdx-exerciseId-setIdx"
+  setCompletion: Record<string, SetStatus>;
+  
+  history: HistoryEntry[];
+  
+  // Actions
+  setCurrentRoutine: (routine: RoutineData) => void;
+  setCurrentView: (view: WorkoutView) => void;
   setIsLoading: (isLoading: boolean) => void;
+  startSession: (sessionIdx: number) => void;
+  toggleSetCompletion: (sessionIdx: number, exerciseId: string, setIdx: number) => void;
+  finishSession: () => void;
+  resetProgress: () => void;
+  resetAll: () => void;
 }

@@ -1,20 +1,56 @@
 [
   {
+    "id": "bench_press",
+    "aliases": ["bench press", "press de banca", "chest press", "benchpress", "banca"],
+    "media_id": "bench_press_demo",
+    "description": "Standard chest exercise."
+  },
+  {
+    "id": "deadlift",
+    "aliases": ["deadlift", "peso muerto", "conventional deadlift"],
+    "media_id": "deadlift_demo",
+    "description": "Posterior chain power."
+  },
+  {
+    "id": "overhead_press",
+    "aliases": ["overhead press", "ohp", "military press", "press militar", "shoulder press", "press de hombro"],
+    "media_id": "overhead_press_demo",
+    "description": "Shoulder strength."
+  },
+  {
+    "id": "pull_up",
+    "aliases": ["pull up", "chin up", "pullups", "dominadas", "pull-ups"],
+    "media_id": "pull_up_demo",
+    "description": "Vertical pull."
+  },
+  {
     "id": "push_up",
-    "aliases": ["push up", "pushups", "push-ups", "flexiones", "lagartijas"],
+    "aliases": ["push up", "pushups", "push-ups", "flexiones", "lagartijas", "floor press"],
     "media_id": "push_up_demo",
     "description": "A classic upper body exercise."
   },
   {
     "id": "squat",
-    "aliases": ["squat", "squats", "sentadillas", "back squat"],
+    "aliases": ["squat", "squats", "sentadillas", "back squat", "barbell squat"],
     "media_id": "squat_demo",
     "description": "Essential lower body movement."
   },
   {
     "id": "plank",
-    "aliases": ["plank", "planks", "plancha", "isometric plank"],
+    "aliases": ["plank", "planks", "plancha", "isometric plank", "core plank"],
     "media_id": "plank_demo",
     "description": "Core stability exercise."
+  },
+  {
+    "id": "lunges",
+    "aliases": ["lunges", "estocadas", "walking lunges", "zancadas"],
+    "media_id": "lunges_demo",
+    "description": "Unilateral lower body."
+  },
+  {
+    "id": "bicep_curls",
+    "aliases": ["bicep curls", "curls de biceps", "curl", "biceps"],
+    "media_id": "bicep_curls_demo",
+    "description": "Arm isolation."
   }
 ]
