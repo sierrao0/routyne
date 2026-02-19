@@ -46,11 +46,11 @@ export function RoutineUploader() {
   }, [handleParse]);
 
   return (
-    <div className="w-full max-w-2xl mx-auto space-y-12 p-4">
+    <div className="w-full max-w-2xl mx-auto space-y-12 p-4 flex flex-col items-center">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center space-y-4"
+        className="text-center space-y-4 w-full flex flex-col items-center"
       >
         <motion.div 
           initial={{ scale: 0.9, opacity: 0 }}
@@ -61,8 +61,8 @@ export function RoutineUploader() {
           <span className="text-[12px] font-black text-white/90 uppercase tracking-[0.25em]">Markdown Parser</span>
         </motion.div>
         
-        <h1 className="text-5xl sm:text-7xl font-black tracking-tighter text-liquid leading-none">
-          NEW <span className="text-blue-500 brightness-125">SESSION</span>
+        <h1 className="text-5xl sm:text-7xl font-black tracking-tighter text-liquid leading-tight text-center">
+          IMPORT <span className="text-blue-500 brightness-125">ROUTINE</span>
         </h1>
         <p className="text-white/40 font-medium text-base tracking-tight max-w-sm mx-auto">Paste your raw markdown. We handle the rest.</p>
       </motion.div>
@@ -73,7 +73,7 @@ export function RoutineUploader() {
         onDrop={onDrop}
         className={cn(
           "relative group transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]",
-          "rounded-[3rem] p-1.5",
+          "rounded-[3rem] p-1.5 w-full",
           isDragging 
             ? "scale-[1.03] rotate-1" 
             : "hover:scale-[1.01]"
@@ -120,11 +120,28 @@ export function RoutineUploader() {
                   />
                 </div>
                 
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-8 pt-8">
-                  <div className="flex items-center gap-4 px-6 py-3 bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/[0.05] shadow-inner">
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-8 w-full">
+                  <label className="flex items-center gap-4 px-8 py-5 bg-white/5 backdrop-blur-xl rounded-[2rem] border border-white/[0.05] shadow-inner cursor-pointer hover:bg-white/10 transition-colors w-full sm:w-auto justify-center">
                     <Upload className="w-5 h-5 text-blue-400" />
-                    <span className="text-[11px] font-black text-white/40 uppercase tracking-[0.2em] leading-none">Drop .md</span>
-                  </div>
+                    <span className="text-[11px] font-black text-white/40 uppercase tracking-[0.2em] leading-none whitespace-nowrap">Drop or Select .md</span>
+                    <input 
+                      type="file" 
+                      accept=".md,text/markdown" 
+                      className="hidden" 
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onload = (event) => {
+                            const content = event.target?.result as string;
+                            setText(content);
+                            handleParse(content);
+                          };
+                          reader.readAsText(file);
+                        }
+                      }}
+                    />
+                  </label>
                   
                   <Button
                     onClick={() => handleParse(text)}
@@ -132,8 +149,8 @@ export function RoutineUploader() {
                     className="w-full sm:w-auto rounded-[2rem] active-glass-btn text-white font-black px-12 py-8 h-auto text-xl transition-all active:scale-95 group relative overflow-hidden flex items-center justify-center"
                   >
                     <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <span className="relative z-10">GENERATE WORKOUT</span>
-                    <Sparkles className="w-6 h-6 ml-4 relative z-10 group-hover:rotate-12 transition-transform" />
+                    <span className="relative z-10 whitespace-nowrap">GENERATE WORKOUT</span>
+                    <Sparkles className="w-6 h-6 ml-4 relative z-10 group-hover:rotate-12 transition-transform shrink-0" />
                   </Button>
                 </div>
               </motion.div>
