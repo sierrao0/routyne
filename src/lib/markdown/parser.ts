@@ -1,105 +1,77 @@
-import { remark } from 'remark';
-import { Exercise, Routine, Set, MediaElement } from '@/types/workout';
 import { v4 as uuidv4 } from 'uuid';
+import { RoutineData, WorkoutSession, ParsedExercise } from '@/types/workout';
+import { resolveExerciseMedia } from '@/lib/media/resolver';
 
 /**
- * Mocks an external media API call (e.g., ExerciseDB or Giphy)
+ * Parses a complex multi-session markdown workout routine into structured data.
  */
-async function fetchExerciseMedia(exerciseName: string): Promise<MediaElement[]> {
-  // Simulate network latency
-  await new Promise(resolve => setTimeout(resolve, 800));
+export function parseRoutine(markdown: string): RoutineData {
+  const lines = markdown.split('\n');
+  const sessions: WorkoutSession[] = [];
+  let currentSession: WorkoutSession | null = null;
+  let overallTitle = "My Workout";
+
+  // Regex to match overall title (H1): # Title...
+  const overallTitleRegex = /^#\s+(.+)$/;
   
-  return [
-    {
-      id: uuidv4(),
-      type: 'gif',
-      url: `https://via.placeholder.com/400x300.gif?text=${encodeURIComponent(exerciseName)}+Demo`,
-      thumbnailUrl: `https://via.placeholder.com/200x150.png?text=${encodeURIComponent(exerciseName)}`,
-      title: exerciseName
+  // Regex to match session title (H2): ## Día 1: PUSH...
+  const sessionRegex = /^##\s+(.+)$/;
+
+  // Robust Regex for exercises: * **Name**: Sets x Reps...
+  // Handles: "3 x 8-10", "3x8", "3 x 10-12 reps", "3x15reps"
+  const exerciseRegex = /^\*\s*\*\*(.*?)\*\*:\s*(\d+)\s*[xX]\s*(\d+)(?:-(\d+))?\s*(?:reps?\.?)?/;
+
+  for (const line of lines) {
+    const trimmedLine = line.trim();
+    if (!trimmedLine) continue;
+
+    // 1. Capture overall title if not set
+    const overallMatch = trimmedLine.match(overallTitleRegex);
+    if (overallMatch && sessions.length === 0) {
+      overallTitle = overallMatch[1].trim();
+      continue;
     }
-  ];
-}
 
-/**
- * Parses markdown workout routines into structured data.
- * Expected format:
- * # Routine Title
- * 
- * ## Exercise Name
- * - 3 sets x 12 reps
- * - Rest: 60s
- */
-export async function parseWorkoutMarkdown(markdown: string): Promise<Routine> {
-  const processor = remark();
-  const tree = processor.parse(markdown);
-  
-  let title = "My Workout";
-  const exercises: Exercise[] = [];
-  let currentExercise: Partial<Exercise> | null = null;
+    // 2. Capture sessions
+    const sessionMatch = trimmedLine.match(sessionRegex);
+    if (sessionMatch) {
+      if (currentSession) sessions.push(currentSession);
+      currentSession = {
+        id: uuidv4(),
+        title: sessionMatch[1].trim(),
+        exercises: [],
+      };
+      continue;
+    }
 
-  // Simple traversal of the MDAST (Markdown Abstract Syntax Tree)
-  // For a production app, we would use unist-util-visit
-  for (const node of (tree.children as any[])) {
-    if (node.type === 'heading') {
-      const text = node.children[0]?.value || '';
-      
-      if (node.depth === 1) {
-        title = text;
-      } else if (node.depth === 2) {
-        // Save previous exercise if it exists
-        if (currentExercise && currentExercise.name) {
-          exercises.push(currentExercise as Exercise);
-        }
-        
-        currentExercise = {
+    // 3. Capture exercises within a session
+    if (currentSession) {
+      const exerciseMatch = trimmedLine.match(exerciseRegex);
+      if (exerciseMatch) {
+        const cleanName = exerciseMatch[1].trim();
+        const sets = parseInt(exerciseMatch[2], 10);
+        const repsMin = parseInt(exerciseMatch[3], 10);
+        const repsMax = exerciseMatch[4] ? parseInt(exerciseMatch[4], 10) : repsMin;
+
+        currentSession.exercises.push({
           id: uuidv4(),
-          name: text,
-          sets: [],
-          media: []
-        };
-      }
-    } else if (node.type === 'list' && currentExercise) {
-      // Parse list items as sets or instructions
-      for (const item of node.children) {
-        const text = item.children[0]?.children[0]?.value || '';
-        
-        // Basic set parsing: "3 sets x 12 reps" or "3x12"
-        const setMatch = text.match(/(\d+)\s*(sets?|x)\s*(\d+)/i);
-        if (setMatch) {
-          const numSets = parseInt(setMatch[1]);
-          const reps = setMatch[3];
-          
-          for (let i = 0; i < numSets; i++) {
-            currentExercise.sets?.push({ reps });
-          }
-        } else if (text.toLowerCase().includes('rest')) {
-          const restMatch = text.match(/(\d+)/);
-          if (restMatch && currentExercise.sets?.length) {
-            currentExercise.sets[currentExercise.sets.length - 1].restTime = parseInt(restMatch[1]);
-          }
-        }
+          originalName: `**${cleanName}**`,
+          cleanName,
+          sets,
+          repsMin,
+          repsMax,
+          mediaUrl: resolveExerciseMedia(cleanName),
+        });
       }
     }
   }
 
-  // Push the last exercise
-  if (currentExercise && currentExercise.name) {
-    exercises.push(currentExercise as Exercise);
-  }
-
-  // Fetch media for all exercises
-  const exercisesWithMedia = await Promise.all(
-    exercises.map(async (ex) => ({
-      ...ex,
-      media: await fetchExerciseMedia(ex.name)
-    }))
-  );
+  if (currentSession) sessions.push(currentSession);
 
   return {
     id: uuidv4(),
-    title,
-    exercises: exercisesWithMedia,
+    title: overallTitle,
+    sessions,
     createdAt: new Date(),
-    updatedAt: new Date()
   };
 }

@@ -1,31 +1,30 @@
-export interface MediaElement {
+export interface ParsedExercise {
   id: string;
-  url: string;
-  type: 'image' | 'video' | 'gif';
-  thumbnailUrl?: string;
-  title?: string;
+  originalName: string;
+  cleanName: string;
+  sets: number;
+  repsMin: number;
+  repsMax: number;
+  mediaUrl: string | null;
 }
 
-export interface Set {
-  reps: number | string;
-  weight?: number;
-  restTime?: number; // in seconds
-}
-
-export interface Exercise {
-  id: string;
-  name: string;
-  sets: Set[];
-  instructions?: string[];
-  media?: MediaElement[];
-  notes?: string;
-}
-
-export interface Routine {
+export interface WorkoutSession {
   id: string;
   title: string;
-  description?: string;
-  exercises: Exercise[];
+  exercises: ParsedExercise[];
+}
+
+export interface RoutineData {
+  id: string;
+  title: string;
+  sessions: WorkoutSession[];
   createdAt: Date;
-  updatedAt: Date;
+}
+
+// Store state interface
+export interface WorkoutState {
+  currentRoutine: RoutineData | null;
+  setCurrentRoutine: (routine: RoutineData) => void;
+  isLoading: boolean;
+  setIsLoading: (isLoading: boolean) => void;
 }

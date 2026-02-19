@@ -1,0 +1,20 @@
+[
+  {
+    "id": "push_up",
+    "aliases": ["push up", "pushups", "push-ups", "flexiones", "lagartijas"],
+    "media_id": "push_up_demo",
+    "description": "A classic upper body exercise."
+  },
+  {
+    "id": "squat",
+    "aliases": ["squat", "squats", "sentadillas", "back squat"],
+    "media_id": "squat_demo",
+    "description": "Essential lower body movement."
+  },
+  {
+    "id": "plank",
+    "aliases": ["plank", "planks", "plancha", "isometric plank"],
+    "media_id": "plank_demo",
+    "description": "Core stability exercise."
+  }
+]
