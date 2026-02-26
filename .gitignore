@@ -42,3 +42,9 @@ next-env.d.ts
 
 # Gemini
 gemini.md
+
+# Claude
+claude.md
+
+# Git worktrees
+.worktrees/
